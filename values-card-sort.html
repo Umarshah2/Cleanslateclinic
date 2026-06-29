@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Clean Slate · Values Card Sort</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F1E7;--paper-2:#FBF8F1;--ink:#2A2622;--ink-soft:#6B635A;
+    --line:#E0D7C6;--green:#2E6E4E;--green-soft:#E5EFE6;--coral:#E2725B;
+    --shadow:0 1px 2px rgba(42,38,34,.05),0 10px 30px rgba(42,38,34,.08);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",system-ui,sans-serif;line-height:1.55;padding:32px 20px 64px}
+  .wrap{max-width:760px;margin:0 auto}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 10px}
+  h1{font-family:"Fraunces",serif;font-weight:500;font-size:clamp(30px,5vw,44px);line-height:1.05;margin:0 0 10px;letter-spacing:-.01em}
+  .lede{font-size:16px;color:var(--ink-soft);margin:0 0 22px}
+  .screen{display:none}.screen.on{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .guide{background:var(--green-soft);border:1px solid #cfe2d2;border-radius:16px;padding:22px 24px;margin-bottom:24px}
+  .guide h2{font-family:"Fraunces",serif;font-weight:500;font-size:20px;color:var(--green);margin:0 0 10px}
+  .guide p.intro{font-size:14.5px;color:var(--ink);margin:0 0 14px}
+  .guide ol{margin:0 0 14px;padding-left:0;list-style:none;counter-reset:s}
+  .guide li{counter-increment:s;position:relative;padding:0 0 10px 34px;font-size:14.5px}
+  .guide li::before{content:counter(s);position:absolute;left:0;top:-1px;width:23px;height:23px;border-radius:50%;background:var(--green);color:#fff;font-family:"JetBrains Mono",monospace;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .tip{font-size:13.5px;color:var(--ink-soft);border-left:2px solid var(--green);padding-left:12px;margin:0}
+  .tip b{color:var(--ink);font-weight:600}
+
+  button.cta{font-family:inherit;font-size:15px;font-weight:600;border:none;border-radius:11px;padding:13px 22px;cursor:pointer;background:var(--green);color:#fff}
+  button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  button:disabled{opacity:.45;cursor:not-allowed}
+
+  /* persistent board guidance */
+  .board-guide{font-size:13.5px;color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin-bottom:14px}
+  .board-guide b{color:var(--ink)}
+
+  .toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;position:sticky;top:0;background:var(--paper);padding:10px 0;z-index:5;border-bottom:1px solid var(--line)}
+  .toolbar .status{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
+  .toolbar .status b{color:var(--green)}
+  .toggle{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;margin-left:auto}
+  .toggle input{accent-color:var(--green);width:15px;height:15px}
+  .hint{font-size:13px;color:var(--coral);font-weight:500}
+
+  .pool{border:1.5px dashed var(--line);border-radius:14px;padding:14px;margin-bottom:18px;min-height:60px;display:flex;flex-wrap:wrap;gap:9px;align-content:flex-start;transition:border-color .15s,background .15s}
+  .pool.target{border-color:var(--green);background:var(--green-soft)}
+  .pool-empty{color:var(--ink-soft);font-size:13.5px;font-style:italic;margin:auto}
+
+  .chip{border:1px solid var(--line);background:var(--paper-2);border-radius:11px;padding:9px 13px;cursor:pointer;font-size:14px;font-weight:500;transition:transform .1s,box-shadow .15s,border-color .15s;text-align:left;line-height:1.3}
+  .chip:hover{box-shadow:var(--shadow)}
+  .chip .cdef{display:block;font-weight:400;font-size:12px;color:var(--ink-soft);margin-top:2px;max-width:30ch}
+  .chip.sel{border-color:var(--green);box-shadow:0 0 0 2px var(--green) inset;transform:translateY(-2px)}
+
+  .tier{border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;transition:box-shadow .15s,border-color .15s}
+  .tier.target{border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+  .thead{display:flex;align-items:center;gap:8px;padding:11px 15px;cursor:pointer;flex-wrap:wrap}
+  .tname{font-family:"Fraunces",serif;font-weight:500;font-size:17px}
+  .tsub{font-size:12px;color:var(--ink-soft)}
+  .tcount{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:500}
+  .tleft{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ink-soft);margin-left:9px;white-space:nowrap}
+  .tier:not(.t-most).full .tleft{color:var(--green);font-weight:500}
+  .tbody{display:flex;flex-wrap:wrap;gap:8px;padding:0 15px 14px}
+  .tbody:empty::before{content:"tap here to place the selected value";color:#B6AC9B;font-size:12.5px;font-style:italic;padding:0 0 2px}
+  .t-most .thead{background:var(--green);color:#fff}.t-most .tsub{color:#dcede2}.t-most .tcount{color:#fff}.t-most .tleft{color:#dcede2}
+  .t-more .thead{background:var(--green-soft)}.t-more .tname{color:var(--green)}
+  .t-neutral .thead{background:var(--paper-2)}
+  .t-less .thead{background:#F0E9DC}
+  .t-least .thead{background:#E8E0D0}
+
+  .meta-row{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 22px}
+  .meta-row .fld{flex:1;min-width:150px}
+  .meta-row label{display:block;font-size:12px;color:var(--ink-soft);margin:0 0 4px;font-weight:500}
+  .meta-row input{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-family:inherit;font-size:14px;background:var(--paper-2);color:var(--ink)}
+  .meta-row input:focus{outline:2px solid var(--green);outline-offset:1px;border-color:transparent}
+  .topli{display:flex;align-items:center;gap:14px;background:var(--paper-2);border:1px solid var(--line);border-radius:13px;padding:13px 15px;margin-bottom:10px}
+  .topnum{font-family:"Fraunces",serif;font-size:24px;color:var(--green);width:24px;text-align:center;flex:none}
+  .topbody{flex:1;min-width:0}.topname{font-family:"Fraunces",serif;font-weight:500;font-size:19px}
+  .topdef{font-size:13px;color:var(--ink-soft)}
+  .rmove{display:flex;flex-direction:column;gap:3px;flex:none}
+  .rmove button{width:30px;height:24px;border:1px solid var(--line);background:var(--paper);border-radius:7px;cursor:pointer;font-size:12px;color:var(--ink-soft)}
+  .rmove button:hover{color:var(--green);border-color:var(--green)}
+  .secondary{margin:22px 0 0}.secondary h3{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;margin:0 0 10px}
+  .secondary .row{display:flex;gap:10px;flex-wrap:wrap}
+  .secondary .pill{border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px;background:var(--paper-2)}
+  .reflect{margin:24px 0 0}.reflect label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:6px}
+  .reflect textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-family:inherit;font-size:14px;background:var(--paper-2);color:var(--ink);resize:vertical;min-height:56px}
+  .reflect textarea:focus{outline:2px solid var(--green);outline-offset:1px;border-color:transparent}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+  .foot{font-size:12px;color:var(--ink-soft);font-family:"JetBrains Mono",monospace;margin-top:26px}
+
+  .print-only{display:none}
+  @media print{
+    @page{margin:16mm}
+    body{background:#fff;padding:0;color:#000}.no-print{display:none!important}.print-only{display:block}.wrap{max-width:none}
+    h1{font-size:30px}
+    .pr-meta{font-family:"JetBrains Mono",monospace;font-size:12px;color:#444;margin:0 0 16px}
+    .pr-top{list-style:none;padding:0;margin:0;counter-reset:p}
+    .pr-top li{counter-increment:p;display:flex;gap:14px;align-items:baseline;padding:13px 0;border-bottom:1px solid #e3e3e3}
+    .pr-top li::before{content:counter(p);font-family:"Fraunces",serif;font-size:24px;color:#1f5237!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;width:24px}
+    .pr-tn{font-family:"Fraunces",serif;font-weight:600;font-size:18px}.pr-td{font-size:13px;color:#555}
+    .pr-more{font-size:13px;color:#444;margin:14px 0 0}.pr-ref{font-size:13px;margin:14px 0 0}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow no-print">Values & Identity · Clean Slate</p>
+  <h1>Values Card Sort</h1>
+
+  <!-- intro -->
+  <section class="screen on" id="s0">
+    <p class="lede">Thirty-two values, and only so much room at the top. To lift one value into what matters most, you'll have to let another go — and that's exactly where this gets useful.</p>
+    <div class="guide">
+      <h2>How to use this tool</h2>
+      <p class="intro">This is a sorting exercise, not a quiz, and it takes about five minutes. You'll place all 32 value cards into five tiers, from <b>most</b> to <b>least</b> important to you. The top and bottom tiers have limited room, so you'll have to make real choices about what matters most — that gentle friction is the whole point. Tap a card to pick it up, tap a tier to set it down, and rearrange freely until it feels right.</p>
+      <ol>
+        <li>Place every card into a tier. Each tier shows how many it holds and how many places are left.</li>
+        <li>When a tier is full, move a card out before adding another.</li>
+        <li>Once all 32 are placed, rank your top four and print your results.</li>
+      </ol>
+      <p class="tip"><b>Values aren't goals.</b> A value is a direction you can always travel — "be honest," "stay close to family." A goal is a place you arrive. Sort for directions.</p>
+    </div>
+    <button class="cta" id="beginBtn">Begin the sort</button>
+  </section>
+
+  <!-- board -->
+  <section class="screen" id="s1">
+    <p class="board-guide no-print"><b>Tap a value to pick it up, then tap a tier to place it.</b> Every tier holds a set number of cards — when one is full, move a card out before adding another. You're done when all 32 have a home.</p>
+    <div class="toolbar">
+      <span class="status" id="status"></span>
+      <span class="hint" id="hint"></span>
+      <label class="toggle"><input type="checkbox" id="defsToggle" checked> show meanings</label>
+    </div>
+    <div class="pool" id="pool"></div>
+    <div id="tiers"></div>
+    <button class="cta" id="toResult" disabled style="margin-top:8px">See my values</button>
+  </section>
+
+  <!-- result -->
+  <section class="screen" id="s2">
+    <p class="eyebrow no-print">Your core values</p>
+    <h2 style="font-family:Fraunces;font-weight:500;font-size:28px;margin:0 0 6px">The four that steer you</h2>
+    <p class="lede no-print" style="margin-bottom:18px">In order — most important at the top. Adjust if it isn't quite right, then print.</p>
+    <div class="meta-row no-print">
+      <div class="fld"><label for="nameIn">Your name (optional)</label><input id="nameIn" type="text" autocomplete="name"></div>
+      <div class="fld"><label for="dateIn">Date</label><input id="dateIn" type="text"></div>
+    </div>
+    <ul id="topList" style="list-style:none;padding:0;margin:0"></ul>
+    <div class="secondary no-print"><h3>Also important to you</h3><div class="row" id="moreRow"></div></div>
+    <div class="reflect no-print">
+      <label for="reflectIn">One value to bring more of into the week ahead (optional)</label>
+      <textarea id="reflectIn" placeholder="e.g. presence — phone away at dinner"></textarea>
+    </div>
+    <div class="actions no-print">
+      <button class="cta" id="printBtn">Print my results</button>
+      <button class="ghost" id="restartBtn">Start over</button>
+    </div>
+    <p class="foot no-print">A standalone exercise · pairs naturally with your Values Compass · original Clean Slate build</p>
+  </section>
+
+  <!-- print -->
+  <div class="print-only">
+    <p class="pr-meta" id="prMeta"></p>
+    <ol class="pr-top" id="prTop"></ol>
+    <p class="pr-more" id="prMore"></p>
+    <p class="pr-ref" id="prRef"></p>
+    <p style="font-family:JetBrains Mono,monospace;font-size:10px;color:#777;margin-top:22px">Clean Slate · Values Card Sort · a value is a direction you travel, not a destination you reach.</p>
+  </div>
+
+</div>
+
+<script>
+const VALUES=[
+ ["Honesty & integrity","Being truthful and acting in line with what I believe is right."],
+ ["Connection","Feeling close to the people who matter to me."],
+ ["Courage","Doing what matters even when I'm afraid."],
+ ["Health","Looking after my body and my mind."],
+ ["Freedom","Living life on my own terms."],
+ ["Kindness","Being warm and caring towards other people."],
+ ["Growth","Keeping on learning and becoming."],
+ ["Family","Being there for the people I call family."],
+ ["Self-respect","Treating myself with the care I'd give a friend."],
+ ["Calm","Finding steadiness and peace in my days."],
+ ["Purpose","Doing things that feel meaningful to me."],
+ ["Creativity","Making things and expressing what's in me."],
+ ["Adventure","Seeking out new experiences."],
+ ["Independence","Standing on my own two feet."],
+ ["Fun","Making room for play and enjoyment."],
+ ["Compassion","Meeting struggle, mine and others', with gentleness."],
+ ["Achievement","Working towards things and seeing them through."],
+ ["Fairness","Treating people justly and standing up for it."],
+ ["Curiosity","Staying open and wanting to understand."],
+ ["Gratitude","Noticing and appreciating what's good."],
+ ["Stability","Building a steady, dependable life."],
+ ["Love","Giving and receiving care openly."],
+ ["Contribution","Giving something back to others."],
+ ["Acceptance","Making room for things as they are."],
+ ["Spirituality","Connecting to something beyond the everyday."],
+ ["Respect","Treating other people with dignity."],
+ ["Humour","Finding lightness and laughter."],
+ ["Loyalty","Standing by the people I commit to."],
+ ["Responsibility","Owning my choices and their effects."],
+ ["Presence","Being here now, rather than somewhere else."],
+ ["Authenticity","Being truly myself, not a version that fits in."],
+ ["Hope","Holding on to the belief that things can be better."],
+];
+/* fixed Q-sort distribution: 4 + 6 + 12 + 6 + 4 = 32 */
+const TIERS=[
+ {key:"most",   label:"Most important", cap:4,  sub:"the few you'd protect first"},
+ {key:"more",   label:"More important", cap:6,  sub:""},
+ {key:"neutral",label:"Neutral",        cap:12, sub:"matters, but not at the centre"},
+ {key:"less",   label:"Less important", cap:6,  sub:""},
+ {key:"least",  label:"Least important",cap:4,  sub:"furthest from what drives you"},
+];
+const TOTAL=VALUES.length; // 32
+
+const $=s=>document.querySelector(s);
+let deck=[], place={}, selected=null, defsOn=true, topOrder=[];
+$("#dateIn").value=new Date().toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"});
+
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$(id).classList.add("on");window.scrollTo({top:0,behavior:"smooth"});}
+function defOf(n){return (VALUES.find(v=>v[0]===n)||[])[1]||"";}
+function countIn(key){return Object.keys(place).filter(n=>place[n]===key).length;}
+
+function start(){
+  deck=shuffle(VALUES.map(v=>v[0]));
+  place={}; deck.forEach(n=>place[n]=null); selected=null; topOrder=[];
+  $("#defsToggle").checked=true; defsOn=true; $("#hint").textContent="";
+  renderBoard(); show("#s1");
+}
+$("#beginBtn").addEventListener("click",start);
+$("#defsToggle").addEventListener("change",e=>{defsOn=e.target.checked;renderBoard();});
+
+function chipEl(name){
+  const b=document.createElement("button");
+  b.className="chip"+(selected===name?" sel":"");
+  b.innerHTML=name+(defsOn?`<span class="cdef">${defOf(name)}</span>`:"");
+  b.addEventListener("click",e=>{e.stopPropagation();selected=(selected===name?null:name);renderBoard();});
+  return b;
+}
+
+function renderBoard(){
+  const pool=$("#pool");pool.innerHTML="";
+  const unplaced=deck.filter(n=>place[n]===null);
+  pool.classList.toggle("target", selected!==null);
+  if(unplaced.length===0){pool.innerHTML='<span class="pool-empty">All values placed — adjust any tier, then continue.</span>';}
+  else unplaced.forEach(n=>pool.appendChild(chipEl(n)));
+  pool.onclick=()=>{ if(selected){place[selected]=null;selected=null;renderBoard();} };
+
+  const wrap=$("#tiers");wrap.innerHTML="";
+  TIERS.forEach(t=>{
+    const n=countIn(t.key), rem=t.cap-n, full=n>=t.cap;
+    const sec=document.createElement("section");
+    sec.className=`tier t-${t.key}`+(full?" full":"")+(selected&&!full?" target":"");
+    sec.innerHTML=`<div class="thead">
+        <span class="tname">${t.label}</span>
+        ${t.sub?`<span class="tsub">· ${t.sub}</span>`:""}
+        <span class="tcount">${n} / ${t.cap}</span>
+        <span class="tleft">${full?"full":rem+" to place"}</span>
+      </div><div class="tbody"></div>`;
+    const body=sec.querySelector(".tbody");
+    deck.filter(x=>place[x]===t.key).forEach(x=>body.appendChild(chipEl(x)));
+    sec.querySelector(".thead").addEventListener("click",()=>placeInto(t.key,full));
+    body.addEventListener("click",e=>{ if(e.target===body) placeInto(t.key,full); });
+    wrap.appendChild(sec);
+  });
+  updateStatus();
+}
+function placeInto(key,full){
+  if(!selected) return;
+  if(full && place[selected]!==key){ flashHint("That tier is full — move a value out first."); return; }
+  place[selected]=key; selected=null; renderBoard();
+}
+function flashHint(msg){const h=$("#hint");h.textContent=msg;clearTimeout(h._t);h._t=setTimeout(()=>h.textContent="",2200);}
+
+function updateStatus(){
+  const placed=deck.filter(n=>place[n]!==null).length, left=TOTAL-placed;
+  $("#status").innerHTML=`<b>${placed}</b> of ${TOTAL} placed · ${left} left`;
+  $("#toResult").disabled = left!==0;
+}
+$("#toResult").addEventListener("click",()=>{
+  topOrder=deck.filter(n=>place[n]==="most");
+  buildResult(); show("#s2");
+});
+
+function buildResult(){
+  const ul=$("#topList");ul.innerHTML="";
+  topOrder.forEach((n,i)=>{
+    const li=document.createElement("li");li.className="topli";
+    li.innerHTML=`<span class="topnum">${i+1}</span>
+      <div class="topbody"><div class="topname">${n}</div><div class="topdef">${defOf(n)}</div></div>
+      <div class="rmove">
+        <button data-d="-1" ${i===0?"disabled":""} aria-label="Move up">▲</button>
+        <button data-d="1" ${i===topOrder.length-1?"disabled":""} aria-label="Move down">▼</button>
+      </div>`;
+    li.querySelectorAll(".rmove button").forEach(b=>b.addEventListener("click",()=>{
+      const j=i+(+b.dataset.d); if(j<0||j>=topOrder.length)return;
+      [topOrder[i],topOrder[j]]=[topOrder[j],topOrder[i]];buildResult();
+    }));
+    ul.appendChild(li);
+  });
+  const row=$("#moreRow");row.innerHTML="";
+  deck.filter(n=>place[n]==="more").forEach(n=>{
+    const p=document.createElement("span");p.className="pill";p.textContent=n;row.appendChild(p);
+  });
+  renderPrint();
+}
+function renderPrint(){
+  const name=$("#nameIn").value.trim(),date=$("#dateIn").value.trim();
+  $("#prMeta").textContent=(name?name+"  ·  ":"")+date+"  ·  my core values, in order";
+  const ol=$("#prTop");ol.innerHTML="";
+  topOrder.forEach(n=>{const li=document.createElement("li");li.innerHTML=`<div><div class="pr-tn">${n}</div><div class="pr-td">${defOf(n)}</div></div>`;ol.appendChild(li);});
+  const more=deck.filter(n=>place[n]==="more");
+  $("#prMore").innerHTML=more.length?`<b>Also important:</b> ${more.join(", ")}.`:"";
+  const r=$("#reflectIn").value.trim();
+  $("#prRef").innerHTML=r?`<b>Bringing more of this into the week ahead:</b> ${r.replace(/[<>]/g,"")}`:"";
+}
+["#nameIn","#dateIn","#reflectIn"].forEach(s=>$(s).addEventListener("input",renderPrint));
+$("#printBtn").addEventListener("click",()=>{renderPrint();window.print();});
+$("#restartBtn").addEventListener("click",start);
+</script>
+</body>
+</html>
